@@ -6,16 +6,27 @@
   "types": "src/index.ts",
   "scripts": {
     "build": "tsc",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "prepublishOnly": "npm run build"
   },
   "keywords": ["voxera", "voice", "ai", "sdk", "react-native", "webrtc"],
+  "author": "Voxera",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/voxera-voice/voxera-react-native.git"
+  },
+  "homepage": "https://github.com/voxera-voice/voxera-react-native#readme",
+  "bugs": {
+    "url": "https://github.com/voxera-voice/voxera-react-native/issues"
+  },
   "peerDependencies": {
     "react": "^18.2.0",
     "react-native": ">=0.70.0",
     "react-native-webrtc": ">=106.0.0"
   },
   "dependencies": {
-    "@voxera/sdk-core": "file:../sdk-core",
+    "@voxera/sdk-core": "^1.0.0",
     "eventemitter3": "^5.0.1",
     "mediasoup-client": "^3.7.15",
     "socket.io-client": "^4.7.4"
