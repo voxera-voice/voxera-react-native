@@ -24,8 +24,8 @@ import type {
   SpeakingStatus,
   RoomMode,
   MeetingCallbacks,
-} from "@maya-voice/sdk-core";
-import { MayaVoiceError, ErrorCodes } from "@maya-voice/sdk-core";
+} from "@voxera/sdk-core";
+import { MayaVoiceError, ErrorCodes } from "@voxera/sdk-core";
 import type { MayaVoiceNativeConfig, RNMediaStream } from "./types";
 
 // react-native-webrtc exports – resolved at runtime after the app imports the package

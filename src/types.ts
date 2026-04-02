@@ -26,9 +26,9 @@ export type {
   MeetingBookmark,
   MeetingSummary,
   MeetingMinutes,
-} from "@maya-voice/sdk-core";
+} from "@voxera/sdk-core";
 
-export { MayaVoiceError, ErrorCodes } from "@maya-voice/sdk-core";
+export { MayaVoiceError, ErrorCodes } from "@voxera/sdk-core";
 
 import type {
   ConnectionStatus,
@@ -48,7 +48,9 @@ import type {
   MeetingSummary,
   MeetingMinutes,
   MeetingCallbacks,
-} from "@maya-voice/sdk-core";
+} from "@voxera/sdk-core";
+
+
 
 /**
  * React Native specific media stream type.
@@ -81,7 +83,7 @@ export interface MayaVoiceNativeConfig {
   onSpeakingStatusChange?: (status: SpeakingStatus) => void;
   onMessage?: (message: ConversationMessage) => void;
   onTranscript?: (text: string, isFinal: boolean) => void;
-  onError?: (error: import("@maya-voice/sdk-core").MayaVoiceError) => void;
+  onError?: (error: import("@voxera/sdk-core").MayaVoiceError) => void;
   onAudioLevel?: (level: number) => void;
   onAIAudioLevel?: (level: number) => void;
   /** Called when the local camera stream changes */
@@ -115,7 +117,7 @@ export interface UseMayaVoiceChatReturn {
   currentTranscript: string;
   audioLevel: number;
   aiAudioLevel: number;
-  error: import("@maya-voice/sdk-core").MayaVoiceError | null;
+  error: import("@voxera/sdk-core").MayaVoiceError | null;
 
   // Streams (pass directly to RTCView or a custom renderer)
   localVideoStream: RNMediaStream | null;
@@ -170,7 +172,7 @@ export interface UseMayaVoiceChatReturn {
   stopScreenShare: () => Promise<void>;
   toggleScreenShare: () => Promise<boolean>;
   updateConfig: (config: Partial<MayaVoiceNativeConfig>) => void;
-  getStats: () => Promise<import("@maya-voice/sdk-core").WebRTCStats | null>;
+  getStats: () => Promise<import("@voxera/sdk-core").WebRTCStats | null>;
   clearError: () => void;
 
   // Host control actions

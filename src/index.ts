@@ -27,4 +27,4 @@ export type {
   MeetingBookmark,
   MeetingSummary,
   MeetingMinutes,
-} from "@maya-voice/sdk-core";
+} from "@voxera/sdk-core";
