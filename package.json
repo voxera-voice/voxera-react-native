@@ -1,0 +1,28 @@
+{
+  "name": "@voxera/sdk-react-native",
+  "version": "1.0.0",
+  "description": "Voxera SDK for React Native (iOS & Android)",
+  "main": "src/index.ts",
+  "types": "src/index.ts",
+  "scripts": {
+    "build": "tsc",
+    "typecheck": "tsc --noEmit"
+  },
+  "keywords": ["voxera", "voice", "ai", "sdk", "react-native", "webrtc"],
+  "peerDependencies": {
+    "react": "^18.2.0",
+    "react-native": ">=0.70.0",
+    "react-native-webrtc": ">=106.0.0"
+  },
+  "dependencies": {
+    "@voxera/sdk-core": "file:../sdk-core",
+    "eventemitter3": "^5.0.1",
+    "mediasoup-client": "^3.7.15",
+    "socket.io-client": "^4.7.4"
+  },
+  "devDependencies": {
+    "@types/react": "^18.0.0",
+    "@types/react-native": "^0.73.0",
+    "typescript": "^5.4.5"
+  }
+}
