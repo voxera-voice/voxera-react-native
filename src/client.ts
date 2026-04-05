@@ -1,5 +1,5 @@
 /**
- * Maya Voice React Native Client
+ * Voxera React Native Client
  *
  * Works on iOS and Android via react-native-webrtc + mediasoup-client.
  *
@@ -16,7 +16,7 @@ import EventEmitter from "eventemitter3";
 import { io, Socket as SocketIOClient } from "socket.io-client";
 import { Device } from "mediasoup-client";
 import type {
-  MayaVoiceEvents,
+  VoxeraEvents,
   WebRTCStats,
   ConversationMessage,
   ConnectionStatus,
@@ -25,8 +25,8 @@ import type {
   RoomMode,
   MeetingCallbacks,
 } from "@voxera/sdk-core";
-import { MayaVoiceError, ErrorCodes } from "@voxera/sdk-core";
-import type { MayaVoiceNativeConfig, RNMediaStream } from "./types";
+import { VoxeraError, ErrorCodes } from "@voxera/sdk-core";
+import type { VoxeraNativeConfig, RNMediaStream } from "./types";
 
 // react-native-webrtc exports – resolved at runtime after the app imports the package
 let rnWebRTC: any;
@@ -39,7 +39,7 @@ try {
 
 const getMediaDevices = () => {
   if (!rnWebRTC?.mediaDevices) {
-    throw new MayaVoiceError(
+    throw new VoxeraError(
       "react-native-webrtc not found. Import it at the top of your app entry file.",
       ErrorCodes.WEBRTC_ERROR
     );
@@ -48,11 +48,11 @@ const getMediaDevices = () => {
 };
 
 /**
- * MayaVoiceNativeClient – mirrors MayaVoiceClient from sdk-core
+ * VoxeraNativeClient – mirrors VoxeraClient from sdk-core
  * but uses react-native-webrtc instead of browser APIs.
  */
-export class MayaVoiceNativeClient extends EventEmitter<MayaVoiceEvents> {
-  private config: MayaVoiceNativeConfig;
+export class VoxeraNativeClient extends EventEmitter<VoxeraEvents> {
+  private config: VoxeraNativeConfig;
   private socket: SocketIOClient | null = null;
 
   private device: InstanceType<typeof Device> | null = null;
@@ -84,10 +84,10 @@ export class MayaVoiceNativeClient extends EventEmitter<MayaVoiceEvents> {
   private _isHost: boolean = false;
   private _meetingCallbacks: MeetingCallbacks = {};
 
-  constructor(config: MayaVoiceNativeConfig) {
+  constructor(config: VoxeraNativeConfig) {
     super();
-    if (!config.appKey) throw new MayaVoiceError("appKey is required", ErrorCodes.INVALID_CONFIG);
-    if (!config.serverUrl) throw new MayaVoiceError("serverUrl is required", ErrorCodes.INVALID_CONFIG);
+    if (!config.appKey) throw new VoxeraError("appKey is required", ErrorCodes.INVALID_CONFIG);
+    if (!config.serverUrl) throw new VoxeraError("serverUrl is required", ErrorCodes.INVALID_CONFIG);
     this.config = {
       connectionOptions: {
         autoReconnect: true,
@@ -316,7 +316,7 @@ export class MayaVoiceNativeClient extends EventEmitter<MayaVoiceEvents> {
    */
   async setupRoomWebRTC(): Promise<void> {
     if (!this.socket) {
-      throw new MayaVoiceError(
+      throw new VoxeraError(
         "Socket not connected — call connectSocketOnly() first",
         ErrorCodes.CONNECTION_FAILED
       );
@@ -342,7 +342,7 @@ export class MayaVoiceNativeClient extends EventEmitter<MayaVoiceEvents> {
 
   async startConversation(): Promise<void> {
     if (this._connectionStatus !== "connected")
-      throw new MayaVoiceError("Must be connected first", ErrorCodes.CONNECTION_FAILED);
+      throw new VoxeraError("Must be connected first", ErrorCodes.CONNECTION_FAILED);
     if (this._conversationStatus === "active") return;
     this.setConversationStatus("starting");
     try {
@@ -368,7 +368,7 @@ export class MayaVoiceNativeClient extends EventEmitter<MayaVoiceEvents> {
   }
 
   sendMessage(content: string): void {
-    if (!this.isConnected) throw new MayaVoiceError("Not connected", ErrorCodes.CONNECTION_FAILED);
+    if (!this.isConnected) throw new VoxeraError("Not connected", ErrorCodes.CONNECTION_FAILED);
     const message: ConversationMessage = {
       id: `msg_${Date.now()}_${Math.random().toString(36).slice(2, 9)}`,
       role: "user",
@@ -569,13 +569,13 @@ export class MayaVoiceNativeClient extends EventEmitter<MayaVoiceEvents> {
         codec: vp8Codec,
       });
     } catch (err: any) {
-      console.error("[Maya RN] Video produce failed:", err?.message || err);
+      console.error("[Voxera RN] Video produce failed:", err?.message || err);
       // Clean up — disable video since produce failed
       (this.localVideoStream as any)?.getTracks().forEach((t: any) => t.stop());
       this.localVideoStream = null;
       this.emit("video:local", null as any);
       this.config.onLocalVideoStream?.(null);
-      throw new MayaVoiceError(
+      throw new VoxeraError(
         `Video produce failed: ${err?.message || "Server rejected video"}`,
         ErrorCodes.WEBRTC_ERROR
       );
@@ -604,7 +604,7 @@ export class MayaVoiceNativeClient extends EventEmitter<MayaVoiceEvents> {
     if (this.localScreenStream) return;
     const mediaDevices = getMediaDevices();
     if (!(mediaDevices as any).getDisplayMedia) {
-      throw new MayaVoiceError(
+      throw new VoxeraError(
         "Screen sharing is not supported on this platform / OS version.",
         ErrorCodes.MEDIA_ACCESS_DENIED
       );
@@ -630,7 +630,7 @@ export class MayaVoiceNativeClient extends EventEmitter<MayaVoiceEvents> {
       }
     } catch (err: any) {
       if (err?.name === "NotAllowedError") return; // user cancelled
-      throw new MayaVoiceError(`Screen share failed: ${err.message}`, ErrorCodes.MEDIA_ACCESS_DENIED);
+      throw new VoxeraError(`Screen share failed: ${err.message}`, ErrorCodes.MEDIA_ACCESS_DENIED);
     }
   }
 
@@ -666,7 +666,7 @@ export class MayaVoiceNativeClient extends EventEmitter<MayaVoiceEvents> {
     } catch { return null; }
   }
 
-  updateConfig(partial: Partial<MayaVoiceNativeConfig>): void {
+  updateConfig(partial: Partial<VoxeraNativeConfig>): void {
     this.config = { ...this.config, ...partial };
     if (this._connectionStatus === "connected") {
       this.sendSignal({ type: "config:update", config: { chat: this.config.chatConfig, voice: this.config.voiceConfig } });
@@ -692,14 +692,14 @@ export class MayaVoiceNativeClient extends EventEmitter<MayaVoiceEvents> {
       if (!res.ok) {
         let detail = `HTTP ${res.status}`;
         try { const body = await res.json(); detail = body?.message || body?.error?.message || detail; } catch {}
-        throw new MayaVoiceError(`Failed to initialize session: ${detail}`, ErrorCodes.AUTHENTICATION_FAILED);
+        throw new VoxeraError(`Failed to initialize session: ${detail}`, ErrorCodes.AUTHENTICATION_FAILED);
       }
       const json = await res.json();
-      if (json.success === false) throw new MayaVoiceError(json.error?.message || "Init failed", json.error?.code || ErrorCodes.AUTHENTICATION_FAILED);
+      if (json.success === false) throw new VoxeraError(json.error?.message || "Init failed", json.error?.code || ErrorCodes.AUTHENTICATION_FAILED);
       return json;
     } catch (err: any) {
       if (err?.name === "AbortError") {
-        throw new MayaVoiceError(`Could not reach server at ${apiUrl} (timed out after ${timeoutMs / 1000}s)`, ErrorCodes.TIMEOUT);
+        throw new VoxeraError(`Could not reach server at ${apiUrl} (timed out after ${timeoutMs / 1000}s)`, ErrorCodes.TIMEOUT);
       }
       throw err;
     } finally {
@@ -716,7 +716,7 @@ export class MayaVoiceNativeClient extends EventEmitter<MayaVoiceEvents> {
       // Audio level monitoring via periodic getStats polling
       this.startAudioLevelPolling();
     } catch (err: any) {
-      throw new MayaVoiceError(
+      throw new VoxeraError(
         `Microphone access denied: ${err?.message || 'unknown reason'}. Check app permissions in Settings.`,
         ErrorCodes.MEDIA_ACCESS_DENIED
       );
@@ -730,7 +730,7 @@ export class MayaVoiceNativeClient extends EventEmitter<MayaVoiceEvents> {
 
       const timeout = setTimeout(() => {
         this.socket?.disconnect();
-        reject(new MayaVoiceError("Socket connection timed out", ErrorCodes.TIMEOUT));
+        reject(new VoxeraError("Socket connection timed out", ErrorCodes.TIMEOUT));
       }, this.config.connectionOptions?.timeout || 30000);
 
       this.socket.on("connect", async () => {
@@ -753,7 +753,7 @@ export class MayaVoiceNativeClient extends EventEmitter<MayaVoiceEvents> {
 
       this.socket.on("connect_error", (err: Error) => {
         clearTimeout(timeout);
-        reject(new MayaVoiceError(`Connection failed: ${err.message}`, ErrorCodes.CONNECTION_FAILED));
+        reject(new VoxeraError(`Connection failed: ${err.message}`, ErrorCodes.CONNECTION_FAILED));
       });
     });
   }
@@ -764,7 +764,7 @@ export class MayaVoiceNativeClient extends EventEmitter<MayaVoiceEvents> {
 
       const timeout = setTimeout(() => {
         this.socket?.disconnect();
-        reject(new MayaVoiceError("Socket connection timed out", ErrorCodes.TIMEOUT));
+        reject(new VoxeraError("Socket connection timed out", ErrorCodes.TIMEOUT));
       }, this.config.connectionOptions?.timeout || 30000);
 
       this.socket.on("connect", () => {
@@ -779,7 +779,7 @@ export class MayaVoiceNativeClient extends EventEmitter<MayaVoiceEvents> {
 
       this.socket.on("connect_error", (err: Error) => {
         clearTimeout(timeout);
-        reject(new MayaVoiceError(`Connection failed: ${err.message}`, ErrorCodes.CONNECTION_FAILED));
+        reject(new VoxeraError(`Connection failed: ${err.message}`, ErrorCodes.CONNECTION_FAILED));
       });
     });
   }
@@ -855,7 +855,7 @@ export class MayaVoiceNativeClient extends EventEmitter<MayaVoiceEvents> {
 
     // Listen for server-side producer errors (e.g. "Video calls not enabled")
     this.socket?.on("producer-error", (data: any) => {
-      console.error("[Maya RN] Producer error from server:", data?.error || data?.message);
+      console.error("[Voxera RN] Producer error from server:", data?.error || data?.message);
       if (data?.kind === "video") {
         // Clean up local video since the server rejected it
         this.disableVideo();
@@ -909,7 +909,7 @@ export class MayaVoiceNativeClient extends EventEmitter<MayaVoiceEvents> {
           }
         }
       } catch (err) {
-        console.error("[Maya RN] Error consuming AI producer:", err);
+        console.error("[Voxera RN] Error consuming AI producer:", err);
       }
     });
 
@@ -998,9 +998,9 @@ export class MayaVoiceNativeClient extends EventEmitter<MayaVoiceEvents> {
   }
 
   private handleError(err: Error): void {
-    const mayaErr = err instanceof MayaVoiceError ? err : new MayaVoiceError(err.message, ErrorCodes.UNKNOWN_ERROR);
-    this.emit("error", mayaErr);
-    this.config.onError?.(mayaErr);
+    const voxeraErr = err instanceof VoxeraError ? err : new VoxeraError(err.message, ErrorCodes.UNKNOWN_ERROR);
+    this.emit("error", voxeraErr);
+    this.config.onError?.(voxeraErr);
   }
 
   private setConnectionStatus(status: any): void {

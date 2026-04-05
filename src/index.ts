@@ -1,12 +1,12 @@
 // React Native SDK – public exports
 // Re-export everything so callers only need one import path.
 
-export { MayaVoiceNativeClient } from "./client";
-export { useMayaVoiceChat } from "./useMayaVoiceChat";
+export { VoxeraNativeClient } from "./client";
+export { useVoxeraChat } from "./useVoxeraChat";
 export type {
-  MayaVoiceNativeConfig,
-  UseMayaVoiceChatConfig,
-  UseMayaVoiceChatReturn,
+  VoxeraNativeConfig,
+  UseVoxeraChatConfig,
+  UseVoxeraChatReturn,
   RNMediaStream,
 } from "./types";
 
@@ -17,7 +17,7 @@ export type {
   SpeakingStatus,
   ConversationMessage,
   WebRTCStats,
-  MayaVoiceError,
+  VoxeraError,
   RoomMode,
   RoomParticipant,
   TranscriptionEntry,

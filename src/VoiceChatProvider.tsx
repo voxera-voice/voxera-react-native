@@ -23,7 +23,7 @@ let webrtcGlobalsRegistered = false;
  * AppRegistry.registerComponent('MyApp', () => App);
  *
  * // App.tsx
- * import { VoiceChatProvider } from '@maya-voice/sdk-react-native';
+ * import { VoiceChatProvider } from '@voxera/sdk-react-native';
  *
  * export default function App() {
  *   return (
@@ -52,7 +52,7 @@ export const VoiceChatProvider: React.FC<{ children: React.ReactNode }> = ({ chi
       }
     } catch (err) {
       // react-native-webrtc not available – continue anyway
-      console.warn("[Maya RN] VoiceChatProvider: react-native-webrtc not found:", err);
+      console.warn("[Voxera RN] VoiceChatProvider: react-native-webrtc not found:", err);
     }
 
     setIsReady(true);

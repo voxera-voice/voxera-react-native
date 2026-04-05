@@ -1,9 +1,9 @@
 import { useState, useEffect, useRef, useCallback } from "react";
-import { MayaVoiceNativeClient } from "./client";
-import type { UseMayaVoiceChatConfig, UseMayaVoiceChatReturn, RNMediaStream } from "./types";
+import { VoxeraNativeClient } from "./client";
+import type { UseVoxeraChatConfig, UseVoxeraChatReturn, RNMediaStream } from "./types";
 import type {
   ConversationMessage,
-  MayaVoiceError,
+  VoxeraError,
   RoomMode,
   RoomParticipant,
   TranscriptionEntry,
@@ -14,17 +14,17 @@ import type {
 } from "@voxera/sdk-core";
 
 /**
- * useMayaVoiceChat
+ * useVoxeraChat
  *
- * React Native hook equivalent of useOmniumVoiceChat from @maya-voice/sdk-react.
+ * React Native hook equivalent of useOmniumVoiceChat from @voxera/sdk-react.
  * Returns the same shape so the web demo UI can be ported 1:1.
  *
  * @example
  * ```tsx
- * import { useMayaVoiceChat } from '@maya-voice/sdk-react-native';
+ * import { useVoxeraChat } from '@voxera/sdk-react-native';
  * import { RTCView } from 'react-native-webrtc';
  *
- * const { connect, localVideoStream, remoteStream } = useMayaVoiceChat({
+ * const { connect, localVideoStream, remoteStream } = useVoxeraChat({
  *   appKey: 'xxx',
  *   serverUrl: 'wss://media.example.com',
  * });
@@ -33,15 +33,15 @@ import type {
  * remoteStream && <RTCView streamURL={(remoteStream as any).toURL()} style={{ flex: 1 }} />
  * ```
  */
-export function useMayaVoiceChat(config: UseMayaVoiceChatConfig): UseMayaVoiceChatReturn {
-  const clientRef = useRef<MayaVoiceNativeClient | null>(null);
+export function useVoxeraChat(config: UseVoxeraChatConfig): UseVoxeraChatReturn {
+  const clientRef = useRef<VoxeraNativeClient | null>(null);
 
-  const [connectionStatus, setConnectionStatus] = useState<UseMayaVoiceChatReturn["connectionStatus"]>("idle");
-  const [conversationStatus, setConversationStatus] = useState<UseMayaVoiceChatReturn["conversationStatus"]>("idle");
-  const [speakingStatus, setSpeakingStatus] = useState<UseMayaVoiceChatReturn["speakingStatus"]>("none");
+  const [connectionStatus, setConnectionStatus] = useState<UseVoxeraChatReturn["connectionStatus"]>("idle");
+  const [conversationStatus, setConversationStatus] = useState<UseVoxeraChatReturn["conversationStatus"]>("idle");
+  const [speakingStatus, setSpeakingStatus] = useState<UseVoxeraChatReturn["speakingStatus"]>("none");
   const [conversationMessages, setConversationMessages] = useState<ConversationMessage[]>([]);
   const [currentTranscript, setCurrentTranscript] = useState("");
-  const [error, setError] = useState<MayaVoiceError | null>(null);
+  const [error, setError] = useState<VoxeraError | null>(null);
   const [audioLevel, setAudioLevel] = useState(0);
   const [aiAudioLevel, setAiAudioLevel] = useState(0);
   const [localVideoStream, setLocalVideoStream] = useState<RNMediaStream | null>(null);
@@ -72,9 +72,9 @@ export function useMayaVoiceChat(config: UseMayaVoiceChatConfig): UseMayaVoiceCh
   const configRef = useRef(config);
   configRef.current = config;
 
-  const getClient = useCallback((): MayaVoiceNativeClient => {
+  const getClient = useCallback((): VoxeraNativeClient => {
     if (!clientRef.current) {
-      clientRef.current = new MayaVoiceNativeClient({
+      clientRef.current = new VoxeraNativeClient({
         ...configRef.current,
         onConnectionStatusChange: setConnectionStatus,
         onConversationStatusChange: setConversationStatus,
@@ -222,7 +222,7 @@ export function useMayaVoiceChat(config: UseMayaVoiceChatConfig): UseMayaVoiceCh
   const connect = useCallback(async () => {
     setError(null);
     try { await getClient().connect(); }
-    catch (err) { setError(err as MayaVoiceError); throw err; }
+    catch (err) { setError(err as VoxeraError); throw err; }
   }, [getClient]);
 
   const disconnect = useCallback(async () => {
@@ -246,22 +246,22 @@ export function useMayaVoiceChat(config: UseMayaVoiceChatConfig): UseMayaVoiceCh
       setAskAiTextResponse("");
       setIsAskAiTextProcessing(false);
     }
-    catch (err) { setError(err as MayaVoiceError); }
+    catch (err) { setError(err as VoxeraError); }
   }, [getClient]);
 
   const startConversation = useCallback(async () => {
     try { await getClient().startConversation(); }
-    catch (err) { setError(err as MayaVoiceError); throw err; }
+    catch (err) { setError(err as VoxeraError); throw err; }
   }, [getClient]);
 
   const endConversation = useCallback(async () => {
     try { await getClient().endConversation(); }
-    catch (err) { setError(err as MayaVoiceError); }
+    catch (err) { setError(err as VoxeraError); }
   }, [getClient]);
 
   const sendMessage = useCallback((content: string) => {
     try { getClient().sendMessage(content); }
-    catch (err) { setError(err as MayaVoiceError); }
+    catch (err) { setError(err as VoxeraError); }
   }, [getClient]);
 
   const setMuted = useCallback((muted: boolean) => {
@@ -285,32 +285,32 @@ export function useMayaVoiceChat(config: UseMayaVoiceChatConfig): UseMayaVoiceCh
 
   const enableVideo = useCallback(async () => {
     try { await getClient().enableVideo(); }
-    catch (err) { setError(err as MayaVoiceError); throw err; }
+    catch (err) { setError(err as VoxeraError); throw err; }
   }, [getClient]);
 
   const disableVideo = useCallback(async () => {
     try { await getClient().disableVideo(); }
-    catch (err) { setError(err as MayaVoiceError); }
+    catch (err) { setError(err as VoxeraError); }
   }, [getClient]);
 
   const toggleVideo = useCallback(async (): Promise<boolean> => {
     try { return await getClient().toggleVideo(); }
-    catch (err) { setError(err as MayaVoiceError); return false; }
+    catch (err) { setError(err as VoxeraError); return false; }
   }, [getClient]);
 
   const startScreenShare = useCallback(async () => {
     try { await getClient().startScreenShare(); }
-    catch (err) { setError(err as MayaVoiceError); throw err; }
+    catch (err) { setError(err as VoxeraError); throw err; }
   }, [getClient]);
 
   const stopScreenShare = useCallback(async () => {
     try { await getClient().stopScreenShare(); }
-    catch (err) { setError(err as MayaVoiceError); }
+    catch (err) { setError(err as VoxeraError); }
   }, [getClient]);
 
   const toggleScreenShare = useCallback(async (): Promise<boolean> => {
     try { return await getClient().toggleScreenShare(); }
-    catch (err) { setError(err as MayaVoiceError); return false; }
+    catch (err) { setError(err as VoxeraError); return false; }
   }, [getClient]);
 
   const getStats = useCallback(async () => {
@@ -320,7 +320,7 @@ export function useMayaVoiceChat(config: UseMayaVoiceChatConfig): UseMayaVoiceCh
 
   const clearError = useCallback(() => setError(null), []);
 
-  const updateConfig = useCallback((partial: Partial<UseMayaVoiceChatConfig>) => {
+  const updateConfig = useCallback((partial: Partial<UseVoxeraChatConfig>) => {
     configRef.current = { ...configRef.current, ...partial };
     clientRef.current?.updateConfig(partial);
   }, []);
@@ -330,12 +330,12 @@ export function useMayaVoiceChat(config: UseMayaVoiceChatConfig): UseMayaVoiceCh
   const connectSocket = useCallback(async () => {
     setError(null);
     try { await getClient().connectSocketOnly(); }
-    catch (err) { setError(err as MayaVoiceError); throw err; }
+    catch (err) { setError(err as VoxeraError); throw err; }
   }, [getClient]);
 
   const setupRoomWebRTC = useCallback(async () => {
     try { await getClient().setupRoomWebRTC(); }
-    catch (err) { setError(err as MayaVoiceError); throw err; }
+    catch (err) { setError(err as VoxeraError); throw err; }
   }, [getClient]);
 
   // ─── Host control actions ──────────────────────────────────────
